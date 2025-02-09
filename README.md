@@ -1,4 +1,4 @@
-# OurAirports JS
+# OurAirports Data - JS Library
 
 A TypeScript library for working with [OurAirports Data](https://github.com/davidmegginson/ourairports-data) data. This library provides easy access to airport information, including IATA/ICAO codes, geographical coordinates, and more.
 
@@ -18,29 +18,21 @@ A TypeScript library for working with [OurAirports Data](https://github.com/davi
 ### Package Manager
 
 ```bash
-npm install ourairports-js
+npm install ourairports-data-js
 # or
-yarn add ourairports-js
+yarn add ourairports-data-js
 # or
-pnpm add ourairports-js
+pnpm add ourairports-data-js
 # or
-bun add ourairports-js
+bun add ourairports-data-js
 ```
 
 ### CDN
 
 ```html
-<!-- Using esm.sh -->
-<script type="module">
-  import OurAirports from 'https://esm.sh/ourairports-js/browser';
-  
-  const airports = new OurAirports();
-  await airports.initialize();
-</script>
-
 <!-- Using unpkg -->
 <script type="module">
-  import OurAirports from 'https://unpkg.com/ourairports-js/dist/browser.js';
+  import OurAirports from 'https://unpkg.com/ourairports-data-js/dist/browser/index.js';
   
   const airports = new OurAirports();
   await airports.initialize();
@@ -48,7 +40,7 @@ bun add ourairports-js
 
 <!-- Using jsDelivr -->
 <script type="module">
-  import OurAirports from 'https://cdn.jsdelivr.net/npm/ourairports-js/dist/browser.js';
+  import OurAirports from 'https://cdn.jsdelivr.net/npm/ourairports-data-js/dist/browser/index.js';
   
   const airports = new OurAirports();
   await airports.initialize();
@@ -63,19 +55,19 @@ The library supports tree-shaking and can be imported in multiple ways:
 
 ```typescript
 // Import everything
-import OurAirports from 'ourairports-js';
+import OurAirports from 'ourairports-data-js';
 
 // Import specific types
-import { BasicInfo, AirportFilter, AirportType } from 'ourairports-js';
+import { BasicInfo, AirportFilter, AirportType } from 'ourairports-data-js';
 
 // Import schemas for validation
-import { BasicInfoSchema, CodesSchema } from 'ourairports-js';
+import { BasicInfoSchema, CodesSchema } from 'ourairports-data-js';
 ```
 
 ### Node.js Environment
 
 ```typescript
-import OurAirports from 'ourairports-js';
+import OurAirports from 'ourairports-data-js';
 
 const airports = new OurAirports();
 airports.initialize(); // Synchronous initialization in Node.js
@@ -114,8 +106,8 @@ const largeAirports = airports.searchAirports({
 ### Browser Environment
 
 ```typescript
-import OurAirports from 'ourairports-js';
-import { AirportFilter } from 'ourairports-js';
+import OurAirports from 'ourairports-data-js';
+import { AirportFilter } from 'ourairports-data-js';
 
 async function initAirports() {
   const airports = new OurAirports();
@@ -147,7 +139,7 @@ initAirports();
 The library automatically detects your environment and uses the appropriate implementation:
 
 ```typescript
-import OurAirports, { BasicInfo } from 'ourairports-js';
+import OurAirports, { BasicInfo } from 'ourairports-data-js';
 
 async function searchAirport(iataCode: string): Promise<BasicInfo | undefined> {
   const airports = new OurAirports();
