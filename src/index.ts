@@ -197,4 +197,6 @@ class OurAirports {
   }
 }
 
+// Export the class as both default and named export
+export { OurAirports };
 export default OurAirports;

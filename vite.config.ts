@@ -5,6 +5,43 @@ import dts from 'vite-plugin-dts';
 export default defineConfig(({ mode }) => {
   const isNode = mode === 'node';
   const isBrowser = mode === 'browser';
+  const isMain = mode === 'main';
+
+  if (isMain) {
+    // Main entry point configuration
+    return {
+      plugins: [
+        dts({
+          outDir: 'dist',
+          include: ['src'],
+          exclude: ['src/tests', 'src/scripts'],
+        }),
+      ],
+      build: {
+        lib: {
+          entry: resolve(__dirname, 'src/main.ts'),
+          formats: ['es'],
+          fileName: () => 'index.js',
+        },
+        rollupOptions: {
+          external: ['zod', /^node:/],
+          output: {
+            dir: 'dist',
+            preserveModules: false,
+            format: 'es',
+            exports: 'named',
+            interop: 'auto',
+          },
+        },
+        target: 'esnext',
+        sourcemap: true,
+        emptyOutDir: false,
+      },
+      resolve: {
+        conditions: ['import', 'default'],
+      },
+    };
+  }
 
   if (isNode) {
     // Node.js build configuration
@@ -18,7 +55,7 @@ export default defineConfig(({ mode }) => {
       ],
       build: {
         lib: {
-          entry: resolve(__dirname, 'src/index.ts'),
+          entry: resolve(__dirname, 'src/node.ts'),
           formats: ['es', 'cjs'],
           fileName: (format: string): string => `node/index.${format === 'es' ? 'js' : 'cjs'}`,
         },
@@ -30,6 +67,8 @@ export default defineConfig(({ mode }) => {
             entryFileNames: 'node/[name].js',
             chunkFileNames: 'node/chunks/[name].js',
             format: 'es',
+            exports: 'named',
+            interop: 'auto',
           },
         },
         target: 'node18',
@@ -54,7 +93,7 @@ export default defineConfig(({ mode }) => {
       ],
       build: {
         lib: {
-          entry: resolve(__dirname, 'src/index.ts'),
+          entry: resolve(__dirname, 'src/browser.ts'),
           formats: ['es'],
           fileName: (): string => 'browser/index.js',
         },
@@ -66,6 +105,8 @@ export default defineConfig(({ mode }) => {
             entryFileNames: 'browser/[name].js',
             chunkFileNames: 'browser/chunks/[name].js',
             format: 'es',
+            exports: 'named',
+            interop: 'auto',
           },
         },
         target: 'esnext',
@@ -85,5 +126,5 @@ export default defineConfig(({ mode }) => {
   }
 
   // Default configuration (should not reach here)
-  throw new Error('Please specify build mode: node or browser');
+  throw new Error('Please specify build mode: node, browser, or main');
 });

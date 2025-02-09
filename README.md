@@ -43,7 +43,7 @@ bun add ourairports-data-js
   import OurAirports from 'https://unpkg.com/ourairports-data-js/dist/browser/index.js';
 
   const airports = new OurAirports();
-  await airports.initialize();
+  await airports.init();
 </script>
 
 <!-- Using jsDelivr -->
@@ -51,123 +51,140 @@ bun add ourairports-data-js
   import OurAirports from 'https://cdn.jsdelivr.net/npm/ourairports-data-js/dist/browser/index.js';
 
   const airports = new OurAirports();
-  await airports.initialize();
+  await airports.init();
 </script>
 ```
 
 ## Usage
 
-### ESM Import
+### Basic Usage
 
-The library supports tree-shaking and can be imported in multiple ways:
-
-```typescript
-// Import everything
-import OurAirports from 'ourairports-data-js';
-
-// Import specific types
-import { BasicInfo, AirportFilter, AirportType } from 'ourairports-data-js';
-
-// Import schemas for validation
-import { BasicInfoSchema, CodesSchema } from 'ourairports-data-js';
-```
-
-### Node.js Environment
+The library automatically detects your environment (Node.js or browser) and uses the appropriate implementation:
 
 ```typescript
 import OurAirports from 'ourairports-data-js';
 
-const airports = new OurAirports();
-airports.initialize(); // Synchronous initialization in Node.js
-
-// Find airport by IATA code
-const pek = airports.findByIataCode('PEK');
-console.log(pek?.name); // "Beijing Capital International Airport"
-console.log(pek?.type); // "large_airport"
-
-// Find airport by ICAO code
-const zbaa = airports.findByIcaoCode('ZBAA');
-console.log(zbaa?.name); // "Beijing Capital International Airport"
-
-// Find airports in China
-const chineseAirports = airports.findByCountry('CN');
-console.log(`Found ${chineseAirports.length} airports in China`);
-
-// Find airports within 100km radius of Beijing Capital Airport
-const nearbyAirports = airports.findAirportsInRadius(40.0799, 116.6031, 100);
-console.log(
-  'Nearby airports:',
-  nearbyAirports.map(a => ({
-    name: a.name,
-    type: a.type,
-    distance: 'calculated by the library',
-  }))
-);
-
-// Search airports with filters
-const largeAirports = airports.searchAirports({
-  type: 'large_airport',
-  hasIataCode: true,
-  hasScheduledService: true,
-  country: 'CN',
-  continent: 'AS',
-});
-```
-
-### Browser Environment
-
-```typescript
-import OurAirports from 'ourairports-data-js';
-import { AirportFilter } from 'ourairports-data-js';
-
-async function initAirports() {
+async function main() {
+  // Create instance
   const airports = new OurAirports();
 
-  try {
-    // Asynchronous initialization in browser (automatically uses CDN)
-    await airports.initializeAsync();
+  // Initialize (auto-detects environment)
+  await airports.init();
 
-    // Search for major Chinese airports
-    const filter: AirportFilter = {
-      country: 'CN',
-      type: 'large_airport',
-      hasIataCode: true,
-      hasScheduledService: true,
-    };
+  // Find airport by IATA code
+  const pek = airports.findByIataCode('PEK');
+  console.log(pek?.name); // "Beijing Capital International Airport"
+  console.log(pek?.type); // "large_airport"
 
-    const majorAirports = airports.searchAirports(filter);
-    console.log('Major Chinese airports:', majorAirports);
-  } catch (error) {
-    console.error('Failed to initialize airports:', error);
-  }
+  // Find airport by ICAO code
+  const zbaa = airports.findByIcaoCode('ZBAA');
+  console.log(zbaa?.name); // "Beijing Capital International Airport"
+
+  // Find airports in China
+  const chineseAirports = airports.findByCountry('CN');
+  console.log(`Found ${chineseAirports.length} airports in China`);
+
+  // Find airports within 100km radius of Beijing Capital Airport
+  const nearbyAirports = airports.findAirportsInRadius(40.0799, 116.6031, 100);
+  console.log(
+    'Nearby airports:',
+    nearbyAirports.map(a => a.name)
+  );
+
+  // Search airports with filters
+  const largeAirports = airports.searchAirports({
+    type: 'large_airport',
+    hasIataCode: true,
+    hasScheduledService: true,
+    country: 'CN',
+    continent: 'AS',
+  });
 }
 
-initAirports();
+main().catch(console.error);
 ```
 
-### Environment Detection
+### Advanced Usage
 
-The library automatically detects your environment and uses the appropriate implementation:
+#### Environment-Specific Imports
+
+You can explicitly import the environment-specific version if needed:
 
 ```typescript
-import OurAirports, { BasicInfo } from 'ourairports-data-js';
+// Browser-specific import
+import OurAirports from 'ourairports-data-js/browser';
 
-async function searchAirport(iataCode: string): Promise<BasicInfo | undefined> {
-  const airports = new OurAirports();
+// Node.js-specific import
+import OurAirports from 'ourairports-data-js/node';
+```
 
-  try {
-    // Library automatically uses the appropriate initialization method
-    if (typeof window !== 'undefined') {
-      await airports.initializeAsync(); // Browser environment
-    } else {
-      airports.initialize(); // Node.js environment
-    }
+#### Type Imports
 
-    return airports.findByIataCode(iataCode);
-  } catch (error) {
-    console.error('Error searching airport:', error);
-    throw error;
-  }
+```typescript
+// Import types
+import type {
+  BasicInfo, // Airport basic information
+  AirportFilter, // Search filter interface
+  AirportType, // Airport type enum
+  Coordinates, // Airport coordinates
+  Region, // Airport region information
+} from 'ourairports-data-js';
+
+// Import validation schemas
+import { BasicInfoSchema, CoordinatesSchema, RegionSchema } from 'ourairports-data-js';
+```
+
+### Search Examples
+
+#### Find by IATA/ICAO Code
+
+```typescript
+// Find by IATA code
+const pek = airports.findByIataCode('PEK');
+console.log(pek?.name); // "Beijing Capital International Airport"
+
+// Find by ICAO code
+const zbaa = airports.findByIcaoCode('ZBAA');
+console.log(zbaa?.name); // "Beijing Capital International Airport"
+```
+
+#### Search with Filters
+
+```typescript
+// Search for major airports in China
+const majorAirports = airports.searchAirports({
+  type: 'large_airport',
+  country: 'CN',
+  hasIataCode: true,
+  hasScheduledService: true,
+  continent: 'AS',
+});
+
+// Find airports within radius
+const nearbyAirports = airports.findAirportsInRadius(
+  40.0799, // latitude
+  116.6031, // longitude
+  100 // radius in kilometers
+);
+```
+
+### Advanced Features
+
+#### Raw Data Access
+
+```typescript
+// Get access to raw data for advanced usage
+const { basicInfo, codes, coordinates, region, references } = airports.data;
+```
+
+#### Environment Detection
+
+```typescript
+// Check current environment
+if (airports.isInBrowser) {
+  console.log('Running in browser');
+} else {
+  console.log('Running in Node.js');
 }
 ```
 
@@ -179,8 +196,9 @@ async function searchAirport(iataCode: string): Promise<BasicInfo | undefined> {
 
 ### Initialization Methods
 
-- `initialize()` - Synchronous initialization (Node.js only)
-- `initializeAsync()` - Asynchronous initialization (works in both Node.js and browser)
+- `init()` - Auto-detect environment and initialize (recommended)
+- `initialize()` - Explicit Node.js initialization
+- `initializeAsync()` - Explicit browser initialization
 
 ### Search Methods
 
@@ -189,6 +207,12 @@ async function searchAirport(iataCode: string): Promise<BasicInfo | undefined> {
 - `findByCountry(countryCode: string): BasicInfo[]` - Find airports by country code
 - `findAirportsInRadius(lat: number, lon: number, radiusKm: number): BasicInfo[]` - Find airports within radius
 - `searchAirports(filter: AirportFilter): BasicInfo[]` - Search airports with filters
+
+### Properties
+
+- `isInitialized: boolean` - Check if the instance is initialized
+- `isInBrowser: boolean` - Check if running in browser environment
+- `data: AirportData` - Get raw data for advanced usage
 
 ### Types
 
@@ -222,17 +246,17 @@ The library uses data from OurAirports, which is updated periodically:
 
 ### Node.js
 
-- Synchronous data loading
+- Synchronous data loading available
 - File system access for data files
 - Better performance with local data
-- Full tree-shaking support in ESM mode
+- CommonJS and ESM support
 
 ### Browser
 
-- Asynchronous data loading
-- Automatic CDN fallback
+- Automatic CDN data loading
 - No file system dependencies
-- Optimized bundle size with tree-shaking
+- Optimized bundle size
+- Modern ESM format
 
 ## Contributing
 

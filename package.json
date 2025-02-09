@@ -1,10 +1,12 @@
 {
   "name": "ourairports-data-js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A TypeScript library for handling OurAirports data, supports browser and node.js",
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
       "node": {
         "types": "./dist/node/index.d.ts",
         "import": "./dist/node/index.js",
@@ -14,11 +16,7 @@
         "types": "./dist/browser/index.d.ts",
         "import": "./dist/browser/index.js"
       },
-      "default": {
-        "types": "./dist/node/index.d.ts",
-        "import": "./dist/node/index.js",
-        "require": "./dist/node/index.cjs"
-      }
+      "default": "./dist/index.js"
     },
     "./data/*": "./dist/data/*"
   },
@@ -29,7 +27,8 @@
     "clean": "rm -rf dist",
     "prebuild": "bun run clean",
     "build": "bun run fetch-data && bun run format && bun run build:all",
-    "build:all": "bun run build:node && bun run build:browser && bun run build:data",
+    "build:all": "bun run build:main && bun run build:node && bun run build:browser && bun run build:data",
+    "build:main": "vite build --mode main",
     "build:node": "vite build --mode node",
     "build:browser": "vite build --mode browser",
     "build:data": "mkdir -p dist/data && bun src/scripts/jsonMinify.ts",
