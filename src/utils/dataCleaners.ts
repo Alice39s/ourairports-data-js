@@ -2,9 +2,9 @@
  * Convert full-width characters to half-width characters
  */
 export function fullWidthToHalfWidth(str: string): string {
-  return str.replace(/[\uff01-\uff5e]/g, (char) =>
-    String.fromCharCode(char.charCodeAt(0) - 0xfee0)
-  ).replace(/\u3000/g, ' ');
+  return str
+    .replace(/[\uff01-\uff5e]/g, char => String.fromCharCode(char.charCodeAt(0) - 0xfee0))
+    .replace(/\u3000/g, ' ');
 }
 
 /**
@@ -31,4 +31,4 @@ export function isValidAirport(name: string, iataCode: string): boolean {
   if (containsSpam(name)) return false;
   if (!iataCode || iataCode.length !== 3) return false; // Filter out invalid IATA codes
   return true;
-} 
+}

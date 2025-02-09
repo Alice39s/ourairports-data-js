@@ -4,7 +4,7 @@ A TypeScript library for working with [OurAirports Data](https://github.com/davi
 
 > [!WARNING]  
 > 🔧 This library is not yet ready for production use. It is still under development.
-> 
+>
 > This project uses only clean data containing IATA Code airports in order to reduce the size of the package.
 
 > [!IMPORTANT]  
@@ -41,7 +41,7 @@ bun add ourairports-data-js
 <!-- Using unpkg -->
 <script type="module">
   import OurAirports from 'https://unpkg.com/ourairports-data-js/dist/browser/index.js';
-  
+
   const airports = new OurAirports();
   await airports.initialize();
 </script>
@@ -49,7 +49,7 @@ bun add ourairports-data-js
 <!-- Using jsDelivr -->
 <script type="module">
   import OurAirports from 'https://cdn.jsdelivr.net/npm/ourairports-data-js/dist/browser/index.js';
-  
+
   const airports = new OurAirports();
   await airports.initialize();
 </script>
@@ -95,11 +95,14 @@ console.log(`Found ${chineseAirports.length} airports in China`);
 
 // Find airports within 100km radius of Beijing Capital Airport
 const nearbyAirports = airports.findAirportsInRadius(40.0799, 116.6031, 100);
-console.log('Nearby airports:', nearbyAirports.map(a => ({
-  name: a.name,
-  type: a.type,
-  distance: 'calculated by the library'
-})));
+console.log(
+  'Nearby airports:',
+  nearbyAirports.map(a => ({
+    name: a.name,
+    type: a.type,
+    distance: 'calculated by the library',
+  }))
+);
 
 // Search airports with filters
 const largeAirports = airports.searchAirports({
@@ -107,7 +110,7 @@ const largeAirports = airports.searchAirports({
   hasIataCode: true,
   hasScheduledService: true,
   country: 'CN',
-  continent: 'AS'
+  continent: 'AS',
 });
 ```
 
@@ -119,19 +122,19 @@ import { AirportFilter } from 'ourairports-data-js';
 
 async function initAirports() {
   const airports = new OurAirports();
-  
+
   try {
     // Asynchronous initialization in browser (automatically uses CDN)
     await airports.initializeAsync();
-    
+
     // Search for major Chinese airports
     const filter: AirportFilter = {
       country: 'CN',
       type: 'large_airport',
       hasIataCode: true,
-      hasScheduledService: true
+      hasScheduledService: true,
     };
-    
+
     const majorAirports = airports.searchAirports(filter);
     console.log('Major Chinese airports:', majorAirports);
   } catch (error) {
@@ -151,7 +154,7 @@ import OurAirports, { BasicInfo } from 'ourairports-data-js';
 
 async function searchAirport(iataCode: string): Promise<BasicInfo | undefined> {
   const airports = new OurAirports();
-  
+
   try {
     // Library automatically uses the appropriate initialization method
     if (typeof window !== 'undefined') {
@@ -159,7 +162,7 @@ async function searchAirport(iataCode: string): Promise<BasicInfo | undefined> {
     } else {
       airports.initialize(); // Node.js environment
     }
-    
+
     return airports.findByIataCode(iataCode);
   } catch (error) {
     console.error('Error searching airport:', error);
@@ -191,18 +194,18 @@ async function searchAirport(iataCode: string): Promise<BasicInfo | undefined> {
 
 ```typescript
 interface AirportFilter {
-  type?: string;         // e.g., 'large_airport', 'medium_airport', 'small_airport'
-  country?: string;      // ISO country code, e.g., 'US', 'CN'
-  continent?: string;    // Continent code, e.g., 'NA', 'AS'
+  type?: string; // e.g., 'large_airport', 'medium_airport', 'small_airport'
+  country?: string; // ISO country code, e.g., 'US', 'CN'
+  continent?: string; // Continent code, e.g., 'NA', 'AS'
   hasIataCode?: boolean; // Whether the airport has an IATA code
   hasScheduledService?: boolean; // Whether the airport has scheduled service
 }
 
 interface BasicInfo {
-  id: number;           // Unique identifier
-  ident: string;        // Airport identifier (usually ICAO code)
-  type: string;         // Airport type
-  name: string;         // Airport name
+  id: number; // Unique identifier
+  ident: string; // Airport identifier (usually ICAO code)
+  type: string; // Airport type
+  name: string; // Airport name
   // ... more fields available in ./src/types.ts
 }
 ```
@@ -218,12 +221,14 @@ The library uses data from OurAirports, which is updated periodically:
 ## Environment-Specific Features
 
 ### Node.js
+
 - Synchronous data loading
 - File system access for data files
 - Better performance with local data
 - Full tree-shaking support in ESM mode
 
 ### Browser
+
 - Asynchronous data loading
 - Automatic CDN fallback
 - No file system dependencies

@@ -1,10 +1,15 @@
 import {
-  BasicInfo, BasicInfoSchema,
-  Codes, CodesSchema,
-  Coordinates, CoordinatesSchema,
-  Region, RegionSchema,
-  References, ReferencesSchema,
-  AirportFilter
+  BasicInfo,
+  BasicInfoSchema,
+  Codes,
+  CodesSchema,
+  Coordinates,
+  CoordinatesSchema,
+  Region,
+  RegionSchema,
+  References,
+  ReferencesSchema,
+  AirportFilter,
 } from './types';
 import { loadShard, loadShardAsync } from './utils/dataLoader';
 import { SearchService } from './services/search';
@@ -34,7 +39,7 @@ class OurAirports {
     if (this.isBrowser) {
       await this.initializeAsync();
     } else {
-      this.initialize();
+      await this.initialize();
     }
   }
 
@@ -42,9 +47,11 @@ class OurAirports {
    * Initialize for Node.js environment
    * @throws {Error} If called in browser environment
    */
-  initialize(): void {
+  async initialize(): Promise<void> {
     if (this.isBrowser) {
-      throw new Error('Synchronous initialization is not supported in browser environment. Please use initializeAsync() or init() instead.');
+      throw new Error(
+        'Synchronous initialization is not supported in browser environment. Please use initializeAsync() or init() instead.'
+      );
     }
 
     if (this.initialized) {
@@ -52,11 +59,14 @@ class OurAirports {
     }
 
     try {
-      this.basicInfo = loadShard('basic_info.json', BasicInfoSchema);
-      this.codes = loadShard('codes.json', CodesSchema);
-      this.coordinates = loadShard('coordinates.json', CoordinatesSchema);
-      this.region = loadShard('region.json', RegionSchema);
-      this.references = loadShard('references.json', ReferencesSchema);
+      [this.basicInfo, this.codes, this.coordinates, this.region, this.references] =
+        await Promise.all([
+          loadShard<typeof BasicInfoSchema>('basic_info.json'),
+          loadShard<typeof CodesSchema>('codes.json'),
+          loadShard<typeof CoordinatesSchema>('coordinates.json'),
+          loadShard<typeof RegionSchema>('region.json'),
+          loadShard<typeof ReferencesSchema>('references.json'),
+        ]);
       this.initialized = true;
       this.initializeSearchService();
     } catch (error) {
@@ -75,19 +85,14 @@ class OurAirports {
     }
 
     try {
-      [
-        this.basicInfo,
-        this.codes,
-        this.coordinates,
-        this.region,
-        this.references
-      ] = await Promise.all([
-        loadShardAsync('basic_info.json', BasicInfoSchema),
-        loadShardAsync('codes.json', CodesSchema),
-        loadShardAsync('coordinates.json', CoordinatesSchema),
-        loadShardAsync('region.json', RegionSchema),
-        loadShardAsync('references.json', ReferencesSchema)
-      ]);
+      [this.basicInfo, this.codes, this.coordinates, this.region, this.references] =
+        await Promise.all([
+          loadShardAsync<typeof BasicInfoSchema>('basic_info.json'),
+          loadShardAsync<typeof CodesSchema>('codes.json'),
+          loadShardAsync<typeof CoordinatesSchema>('coordinates.json'),
+          loadShardAsync<typeof RegionSchema>('region.json'),
+          loadShardAsync<typeof ReferencesSchema>('references.json'),
+        ]);
       this.initialized = true;
       this.initializeSearchService();
     } catch (error) {
@@ -99,7 +104,9 @@ class OurAirports {
   private ensureInitialized() {
     if (!this.initialized) {
       const method = this.isBrowser ? 'initializeAsync()' : 'initialize()';
-      throw new Error(`OurAirports is not initialized. Please call ${method} or use init() for automatic environment detection.`);
+      throw new Error(
+        `OurAirports is not initialized. Please call ${method} or use init() for automatic environment detection.`
+      );
     }
   }
 
@@ -171,7 +178,7 @@ class OurAirports {
       codes: this.codes,
       coordinates: this.coordinates,
       region: this.region,
-      references: this.references
+      references: this.references,
     };
   }
 

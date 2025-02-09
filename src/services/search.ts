@@ -5,7 +5,11 @@ export class SearchService {
   constructor(
     private basicInfo: BasicInfo[],
     private codes: { id: number; iata_code: string | null; ident: string }[],
-    private coordinates: { id: number; latitude_deg: number | null; longitude_deg: number | null }[],
+    private coordinates: {
+      id: number;
+      latitude_deg: number | null;
+      longitude_deg: number | null;
+    }[],
     private region: { id: number; iso_country: string; continent: string | null }[],
     private references: { id: number; scheduled_service: 'yes' | 'no' }[]
   ) {}
@@ -48,8 +52,16 @@ export class SearchService {
       if (filter.country || filter.continent) {
         const region = this.region.find(r => r.id === info.id);
         if (!region) return false;
-        if (filter.country && (!region.iso_country || region.iso_country.toLowerCase() !== filter.country.toLowerCase())) return false;
-        if (filter.continent && (!region.continent || region.continent.toLowerCase() !== filter.continent.toLowerCase())) return false;
+        if (
+          filter.country &&
+          (!region.iso_country || region.iso_country.toLowerCase() !== filter.country.toLowerCase())
+        )
+          return false;
+        if (
+          filter.continent &&
+          (!region.continent || region.continent.toLowerCase() !== filter.continent.toLowerCase())
+        )
+          return false;
       }
 
       // Filter by IATA code presence
@@ -82,12 +94,7 @@ export class SearchService {
       this.coordinates
         .filter(coord => {
           if (coord.latitude_deg === null || coord.longitude_deg === null) return false;
-          const distance = calculateDistance(
-            lat,
-            lon,
-            coord.latitude_deg,
-            coord.longitude_deg
-          );
+          const distance = calculateDistance(lat, lon, coord.latitude_deg, coord.longitude_deg);
           return distance <= radiusKm;
         })
         .map(coord => coord.id)
@@ -95,4 +102,4 @@ export class SearchService {
 
     return this.basicInfo.filter(info => matchingIds.has(info.id));
   }
-} 
+}

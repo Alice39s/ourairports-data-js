@@ -5,26 +5,24 @@ import OurAirports from '../../index';
 // Mock window to simulate browser environment
 const windowSpy = vi.spyOn(global, 'window', 'get');
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-windowSpy.mockImplementation(() => ({} as Window & typeof globalThis));
+windowSpy.mockImplementation(() => ({}) as Window & typeof globalThis);
 
 describe('OurAirports Browser Tests', () => {
   let airports: OurAirports;
   const mockData = {
     basic_info: [
-      { id: 1, name: 'Beijing Capital International Airport', type: 'large_airport', ident: 'ZBAA', iata_code: 'PEK' }
+      {
+        id: 1,
+        name: 'Beijing Capital International Airport',
+        type: 'large_airport',
+        ident: 'ZBAA',
+        iata_code: 'PEK',
+      },
     ],
-    codes: [
-      { id: 1, ident: 'ZBAA', iata_code: 'PEK' }
-    ],
-    coordinates: [
-      { id: 1, latitude_deg: 40.0799, longitude_deg: 116.6031 }
-    ],
-    region: [
-      { id: 1, iso_country: 'CN', iso_region: 'CN-BJ', continent: 'AS' }
-    ],
-    references: [
-      { id: 1, scheduled_service: 'yes' }
-    ]
+    codes: [{ id: 1, ident: 'ZBAA', iata_code: 'PEK' }],
+    coordinates: [{ id: 1, latitude_deg: 40.0799, longitude_deg: 116.6031 }],
+    region: [{ id: 1, iso_country: 'CN', iso_region: 'CN-BJ', continent: 'AS' }],
+    references: [{ id: 1, scheduled_service: 'yes' }],
   };
 
   beforeEach(() => {
@@ -38,7 +36,7 @@ describe('OurAirports Browser Tests', () => {
       const key = fileName?.replace('.json', '') as keyof typeof mockData;
       return Promise.resolve({
         ok: true,
-        json: () => Promise.resolve(mockData[key])
+        json: () => Promise.resolve(mockData[key]),
       });
     });
   });
@@ -62,9 +60,15 @@ describe('OurAirports Browser Tests', () => {
     test('should load all data files', async () => {
       await airports.initializeAsync();
       expect(global.fetch).toHaveBeenCalledTimes(5); // 5 data files
-      
+
       // Verify each file was loaded
-      const files = ['basic_info.json', 'codes.json', 'coordinates.json', 'region.json', 'references.json'];
+      const files = [
+        'basic_info.json',
+        'codes.json',
+        'coordinates.json',
+        'region.json',
+        'references.json',
+      ];
       files.forEach(file => {
         expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining(file));
       });
@@ -76,21 +80,21 @@ describe('OurAirports Browser Tests', () => {
     });
 
     test('should handle invalid data', async () => {
-      global.fetch = vi.fn().mockImplementation(() => 
+      global.fetch = vi.fn().mockImplementation(() =>
         Promise.resolve({
           ok: true,
-          json: () => Promise.resolve([{ invalid: 'data' }])
+          json: () => Promise.resolve([{ invalid: 'data' }]),
         })
       );
       await expect(airports.initializeAsync()).rejects.toThrow();
     });
 
     test('should handle HTTP errors', async () => {
-      global.fetch = vi.fn().mockImplementation(() => 
+      global.fetch = vi.fn().mockImplementation(() =>
         Promise.resolve({
           ok: false,
           status: 404,
-          statusText: 'Not Found'
+          statusText: 'Not Found',
         })
       );
       await expect(airports.initializeAsync()).rejects.toThrow();
@@ -132,7 +136,7 @@ describe('OurAirports Browser Tests', () => {
         country: 'CN',
         continent: 'AS',
         hasIataCode: true,
-        hasScheduledService: true
+        hasScheduledService: true,
       });
       expect(results).toHaveLength(1);
     });
@@ -162,4 +166,4 @@ describe('OurAirports Browser Tests', () => {
       }).toThrow();
     });
   });
-}); 
+});

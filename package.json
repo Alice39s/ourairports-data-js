@@ -1,30 +1,38 @@
 {
   "name": "ourairports-data-js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A TypeScript library for handling OurAirports data, supports browser and node.js",
   "type": "module",
   "exports": {
     ".": {
       "node": {
+        "types": "./dist/node/index.d.ts",
         "import": "./dist/node/index.js",
-        "types": "./dist/node/index.d.ts"
+        "require": "./dist/node/index.cjs"
       },
       "browser": {
-        "import": "./dist/browser/index.js",
-        "types": "./dist/browser/index.d.ts"
+        "types": "./dist/browser/index.d.ts",
+        "import": "./dist/browser/index.js"
       },
       "default": {
+        "types": "./dist/node/index.d.ts",
         "import": "./dist/node/index.js",
-        "types": "./dist/node/index.d.ts"
+        "require": "./dist/node/index.cjs"
       }
-    }
+    },
+    "./data/*": "./dist/data/*"
   },
   "files": [
-    "dist",
-    "data"
+    "dist"
   ],
   "scripts": {
-    "build": "bun run fetch-data && tsup",
+    "clean": "rm -rf dist",
+    "prebuild": "bun run clean",
+    "build": "bun run fetch-data && bun run format && bun run build:all",
+    "build:all": "bun run build:node && bun run build:browser && bun run build:data",
+    "build:node": "vite build --mode node",
+    "build:browser": "vite build --mode browser",
+    "build:data": "mkdir -p dist/data && bun src/scripts/jsonMinify.ts",
     "test": "vitest run",
     "test:node": "vitest run src/tests/node",
     "test:browser": "vitest run src/tests/browser",
@@ -32,19 +40,22 @@
     "test:coverage": "vitest run --coverage",
     "fetch-data": "bun src/scripts/fetchData.ts",
     "format": "prettier --write .",
-    "lint": "eslint . --ext .ts",
-    "prepare": "bun run build"
+    "lint": "eslint . --ext .ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/node": "^22.0.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "@vitest/coverage-v8": "^1.2.2",
+    "ajv": "^8.17.1",
     "eslint": "^8.56.0",
+    "glob": "^11.0.0",
     "happy-dom": "^15.11.7",
     "prettier": "^3.2.5",
     "typescript": "^5.3.3",
-    "tsup": "^8.0.2",
+    "vite": "^6.0.0",
+    "vite-plugin-dts": "^4.5.0",
     "vitest": "^1.2.2"
   },
   "dependencies": {
@@ -73,7 +84,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alice39s/ourairports-js"
+    "url": "https://github.com/alice39s/ourairports-data-js"
   },
   "trustedDependencies": [
     "core-js",

@@ -38,7 +38,7 @@ export const ReferencesSchema = BaseSchema.extend({
   scheduled_service: z.enum(['yes', 'no']),
 }).transform(data => ({
   ...data,
-  scheduled_service: data.scheduled_service ?? 'no'
+  scheduled_service: data.scheduled_service ?? 'no',
 }));
 
 export type BasicInfo = z.infer<typeof BasicInfoSchema>;
@@ -47,7 +47,14 @@ export type Coordinates = z.infer<typeof CoordinatesSchema>;
 export type Region = z.infer<typeof RegionSchema>;
 export type References = z.infer<typeof ReferencesSchema>;
 
-export type AirportType = 'small_airport' | 'medium_airport' | 'large_airport' | 'heliport' | 'seaplane_base' | 'closed' | 'balloonport';
+export type AirportType =
+  | 'small_airport'
+  | 'medium_airport'
+  | 'large_airport'
+  | 'heliport'
+  | 'seaplane_base'
+  | 'closed'
+  | 'balloonport';
 
 export interface AirportFilter {
   type?: AirportType;
@@ -55,4 +62,4 @@ export interface AirportFilter {
   continent?: string;
   hasIataCode?: boolean;
   hasScheduledService?: boolean;
-} 
+}

@@ -12,7 +12,7 @@ import {
   Codes,
   Coordinates,
   Region,
-  References
+  References,
 } from '../../types';
 
 // Set test environment
@@ -58,7 +58,7 @@ describe('OurAirports Node.js Tests', () => {
         country: 'CN',
         continent: 'AS',
         hasIataCode: true,
-        hasScheduledService: true
+        hasScheduledService: true,
       });
       expect(results.length).toBeGreaterThan(0);
     });
@@ -109,70 +109,70 @@ describe('OurAirports Node.js Tests', () => {
 
   describe('Data type validation', () => {
     test('should validate basic_info.json schema', () => {
-      const data = JSON.parse(
-        readFileSync(join(DATA_DIR, 'basic_info.json'), 'utf-8')
-      );
+      const data = JSON.parse(readFileSync(join(DATA_DIR, 'basic_info.json'), 'utf-8'));
       expect(() => {
         data.forEach((item: unknown) => BasicInfoSchema.parse(item));
       }).not.toThrow();
     });
 
     test('should validate codes.json schema', () => {
-      const data = JSON.parse(
-        readFileSync(join(DATA_DIR, 'codes.json'), 'utf-8')
-      );
+      const data = JSON.parse(readFileSync(join(DATA_DIR, 'codes.json'), 'utf-8'));
       expect(() => {
         data.forEach((item: unknown) => CodesSchema.parse(item));
       }).not.toThrow();
     });
 
     test('should validate coordinates.json schema', () => {
-      const data = JSON.parse(
-        readFileSync(join(DATA_DIR, 'coordinates.json'), 'utf-8')
-      );
+      const data = JSON.parse(readFileSync(join(DATA_DIR, 'coordinates.json'), 'utf-8'));
       expect(() => {
         data.forEach((item: unknown) => CoordinatesSchema.parse(item));
       }).not.toThrow();
     });
 
     test('should validate region.json schema', () => {
-      const data = JSON.parse(
-        readFileSync(join(DATA_DIR, 'region.json'), 'utf-8')
-      );
+      const data = JSON.parse(readFileSync(join(DATA_DIR, 'region.json'), 'utf-8'));
       expect(() => {
         data.forEach((item: unknown) => RegionSchema.parse(item));
       }).not.toThrow();
     });
 
     test('should validate references.json schema', () => {
-      const data = JSON.parse(
-        readFileSync(join(DATA_DIR, 'references.json'), 'utf-8')
-      );
+      const data = JSON.parse(readFileSync(join(DATA_DIR, 'references.json'), 'utf-8'));
       expect(() => {
         data.forEach((item: unknown) => ReferencesSchema.parse(item));
       }).not.toThrow();
     });
 
     test('should ensure all data files have matching IDs', () => {
-      const basicInfo = new Set(JSON.parse(
-        readFileSync(join(DATA_DIR, 'basic_info.json'), 'utf-8')
-      ).map((item: { id: number }) => item.id));
+      const basicInfo = new Set(
+        JSON.parse(readFileSync(join(DATA_DIR, 'basic_info.json'), 'utf-8')).map(
+          (item: { id: number }) => item.id
+        )
+      );
 
-      const codes = new Set(JSON.parse(
-        readFileSync(join(DATA_DIR, 'codes.json'), 'utf-8')
-      ).map((item: { id: number }) => item.id));
+      const codes = new Set(
+        JSON.parse(readFileSync(join(DATA_DIR, 'codes.json'), 'utf-8')).map(
+          (item: { id: number }) => item.id
+        )
+      );
 
-      const coordinates = new Set(JSON.parse(
-        readFileSync(join(DATA_DIR, 'coordinates.json'), 'utf-8')
-      ).map((item: { id: number }) => item.id));
+      const coordinates = new Set(
+        JSON.parse(readFileSync(join(DATA_DIR, 'coordinates.json'), 'utf-8')).map(
+          (item: { id: number }) => item.id
+        )
+      );
 
-      const region = new Set(JSON.parse(
-        readFileSync(join(DATA_DIR, 'region.json'), 'utf-8')
-      ).map((item: { id: number }) => item.id));
+      const region = new Set(
+        JSON.parse(readFileSync(join(DATA_DIR, 'region.json'), 'utf-8')).map(
+          (item: { id: number }) => item.id
+        )
+      );
 
-      const references = new Set(JSON.parse(
-        readFileSync(join(DATA_DIR, 'references.json'), 'utf-8')
-      ).map((item: { id: number }) => item.id));
+      const references = new Set(
+        JSON.parse(readFileSync(join(DATA_DIR, 'references.json'), 'utf-8')).map(
+          (item: { id: number }) => item.id
+        )
+      );
 
       expect(basicInfo.size).toBeGreaterThan(0);
       expect(basicInfo.size).toBe(codes.size);
@@ -195,17 +195,13 @@ describe('OurAirports Node.js Tests', () => {
         readFileSync(join(DATA_DIR, 'basic_info.json'), 'utf-8')
       ) as BasicInfo[];
 
-      const codes = JSON.parse(
-        readFileSync(join(DATA_DIR, 'codes.json'), 'utf-8')
-      ) as Codes[];
+      const codes = JSON.parse(readFileSync(join(DATA_DIR, 'codes.json'), 'utf-8')) as Codes[];
 
       const coordinates = JSON.parse(
         readFileSync(join(DATA_DIR, 'coordinates.json'), 'utf-8')
       ) as Coordinates[];
 
-      const region = JSON.parse(
-        readFileSync(join(DATA_DIR, 'region.json'), 'utf-8')
-      ) as Region[];
+      const region = JSON.parse(readFileSync(join(DATA_DIR, 'region.json'), 'utf-8')) as Region[];
 
       const references = JSON.parse(
         readFileSync(join(DATA_DIR, 'references.json'), 'utf-8')
@@ -229,4 +225,4 @@ describe('OurAirports Node.js Tests', () => {
       expect(info.iata_code).toBe(code.iata_code);
     });
   });
-}); 
+});

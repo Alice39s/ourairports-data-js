@@ -57,7 +57,11 @@ function parseNumber(value: string): number | null {
   return isNaN(num) ? null : num;
 }
 
-function createDataShard(airports: ProcessedAirport[], fields: Array<keyof ProcessedAirport>, filename: string): void {
+function createDataShard(
+  airports: ProcessedAirport[],
+  fields: Array<keyof ProcessedAirport>,
+  filename: string
+): void {
   const shard = airports.map(airport => {
     const shardData: Partial<ProcessedAirport> = { id: airport.id };
     fields.forEach(field => {
@@ -66,11 +70,8 @@ function createDataShard(airports: ProcessedAirport[], fields: Array<keyof Proce
     });
     return shardData;
   });
-  
-  writeFileSync(
-    join(DATA_DIR, filename),
-    JSON.stringify(shard, null, 2)
-  );
+
+  writeFileSync(join(DATA_DIR, filename), JSON.stringify(shard, null, 2));
 }
 
 export async function fetchAirportsData(): Promise<void> {
@@ -80,18 +81,18 @@ export async function fetchAirportsData(): Promise<void> {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const csvData = await response.text();
     console.log('Data download completed, starting to parse...');
-    
+
     const records = parse(csvData, {
       columns: true,
       skip_empty_lines: true,
-      cast: false
+      cast: false,
     }) as RawAirportRecord[];
 
     const processedRecords = records
-      .map((record) => {
+      .map(record => {
         const cleanedName = cleanAirportName(record.name);
         if (!isValidAirport(cleanedName, record.iata_code)) {
           return null;
@@ -123,38 +124,35 @@ export async function fetchAirportsData(): Promise<void> {
     mkdirSync(DATA_DIR, { recursive: true });
 
     // Create data shards
-    createDataShard(processedRecords as ProcessedAirport[], [
-      'home_link',
-      'wikipedia_link',
-      'keywords',
-      'scheduled_service'
-    ], 'references.json');
+    createDataShard(
+      processedRecords as ProcessedAirport[],
+      ['home_link', 'wikipedia_link', 'keywords', 'scheduled_service'],
+      'references.json'
+    );
 
-    createDataShard(processedRecords as ProcessedAirport[], [
-      'gps_code',
-      'iata_code',
-      'local_code',
-      'ident'
-    ], 'codes.json');
+    createDataShard(
+      processedRecords as ProcessedAirport[],
+      ['gps_code', 'iata_code', 'local_code', 'ident'],
+      'codes.json'
+    );
 
-    createDataShard(processedRecords as ProcessedAirport[], [
-      'latitude_deg',
-      'longitude_deg',
-      'elevation_ft'
-    ], 'coordinates.json');
+    createDataShard(
+      processedRecords as ProcessedAirport[],
+      ['latitude_deg', 'longitude_deg', 'elevation_ft'],
+      'coordinates.json'
+    );
 
-    createDataShard(processedRecords as ProcessedAirport[], [
-      'continent',
-      'iso_country',
-      'iso_region',
-      'municipality'
-    ], 'region.json');
+    createDataShard(
+      processedRecords as ProcessedAirport[],
+      ['continent', 'iso_country', 'iso_region', 'municipality'],
+      'region.json'
+    );
 
-    createDataShard(processedRecords as ProcessedAirport[], [
-      'name',
-      'type',
-      'iata_code'
-    ], 'basic_info.json');
+    createDataShard(
+      processedRecords as ProcessedAirport[],
+      ['name', 'type', 'iata_code'],
+      'basic_info.json'
+    );
 
     console.log('Data processing completed!');
     console.log(`Processed ${processedRecords.length} airport records`);
@@ -167,4 +165,4 @@ export async function fetchAirportsData(): Promise<void> {
 // If the script is run directly, execute data retrieval
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   fetchAirportsData();
-} 
+}

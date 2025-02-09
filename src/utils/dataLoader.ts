@@ -1,125 +1,60 @@
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
 import { z } from 'zod';
-import { cleanAirportName, isValidAirport } from './dataCleaners';
 
-const CDN_BASE_URL = 'https://cdn.jsdelivr.net/npm/ourairports-js@latest/data/';
-
-/**
- * Get data directory path for Node.js environment
- */
-function getNodeDataPath(): string {
-  const dataPath = join(process.cwd(), 'data');
-  if (!existsSync(dataPath)) {
-    throw new Error(`Data directory not found at ${dataPath}`);
-  }
-  return dataPath;
-}
-
-/**
- * Load and parse data shard in browser environment
- */
-async function loadBrowserShard<T extends z.ZodTypeAny>(filename: string, schema: T): Promise<z.infer<T>[]> {
-  const response = await fetch(`${CDN_BASE_URL}${filename}`);
-  if (!response.ok) {
-    throw new Error(`Failed to load data from ${CDN_BASE_URL}${filename}: ${response.status} ${response.statusText}`);
-  }
-  const data = await response.json();
-  return processData(data, schema);
-}
-
-/**
- * Load and parse data shard in Node.js environment
- */
-function loadNodeShard<T extends z.ZodTypeAny>(filename: string, schema: T): z.infer<T>[] {
-  const dataPath = join(getNodeDataPath(), filename);
-  if (!existsSync(dataPath)) {
-    throw new Error(`Data file not found at ${dataPath}`);
-  }
-
-  try {
-    const rawData = readFileSync(dataPath, 'utf-8');
-    const data = JSON.parse(rawData);
-    return processData(data, schema);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.includes('not found')) {
-        throw error;
-      }
-      if (error instanceof SyntaxError) {
-        throw new Error(`Invalid JSON in file ${dataPath}: ${error.message}`);
-      }
-      console.error(`Error loading data from ${dataPath}:`, error.message);
-      console.error('Error details:', error);
-    }
-    throw new Error(`Failed to load data from ${dataPath}. Please ensure the data files exist in the correct location.`);
-  }
-}
-
-/**
- * Process and clean data according to schema
- */
-function processData<T extends z.ZodTypeAny>(data: unknown[], schema: T): z.infer<T>[] {
-  if (!Array.isArray(data)) {
-    throw new Error('Data must be an array');
-  }
-
-  const validItems: z.infer<T>[] = [];
-  const errors: Error[] = [];
-
-  data.forEach((item: unknown, index: number) => {
-    try {
-      const parsed = schema.parse(item);
-      // If the data contains the name field, clean it
-      if ('name' in parsed && typeof parsed.name === 'string') {
-        const cleanedName = cleanAirportName(parsed.name);
-        if (!isValidAirport(cleanedName, parsed.iata_code)) {
-          errors.push(new Error(`Invalid airport name at index ${index}: ${parsed.name}`));
-          return;
-        }
-        validItems.push({ ...parsed, name: cleanedName });
-      } else {
-        validItems.push(parsed);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        errors.push(new Error(`Failed to parse item at index ${index}: ${error.message}`));
-      } else {
-        errors.push(new Error(`Unknown error parsing item at index ${index}`));
-      }
-    }
-  });
-
-  if (errors.length > 0) {
-    console.warn(`Found ${errors.length} errors while processing data:`);
-    errors.forEach(error => console.warn(error.message));
-  }
-
-  if (validItems.length === 0) {
-    throw new Error('No valid items found in data');
-  }
-
-  return validItems;
-}
+const isBrowser = typeof window !== 'undefined' && process.env.NODE_ENV !== 'test';
 
 /**
  * Load and parse data shard
  */
-export function loadShard<T extends z.ZodTypeAny>(filename: string, schema: T): z.infer<T>[] {
+export async function loadShard<T extends z.ZodTypeAny>(filename: string): Promise<z.infer<T>[]> {
   // Check if we're in a browser environment
-  if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'test') {
-    throw new Error('Synchronous data loading is not supported in browser environment. Please use loadShardAsync instead.');
+  if (isBrowser) {
+    throw new Error(
+      'Synchronous data loading is not supported in browser environment. Please use loadShardAsync instead.'
+    );
   }
-  return loadNodeShard(filename, schema);
+
+  // In Node.js environment, dynamically import node loaders
+  const nodeLoaders = await import('../loaders/node');
+
+  // Map filename to loader function
+  const loaderMap = {
+    'basic_info.json': nodeLoaders.loadBasicInfo,
+    'codes.json': nodeLoaders.loadCodes,
+    'coordinates.json': nodeLoaders.loadCoordinates,
+    'region.json': nodeLoaders.loadRegion,
+    'references.json': nodeLoaders.loadReferences,
+  } as const;
+
+  const loader = loaderMap[filename as keyof typeof loaderMap];
+  if (!loader) {
+    throw new Error(`No loader found for file: ${filename}`);
+  }
+
+  return loader() as unknown as z.infer<T>[];
 }
 
 /**
  * Load and parse data shard asynchronously (supports both Node.js and browser)
  */
-export async function loadShardAsync<T extends z.ZodTypeAny>(filename: string, schema: T): Promise<z.infer<T>[]> {
-  // Check if we're in a browser environment
-  if (typeof window !== 'undefined') {
-    return loadBrowserShard(filename, schema);
+export async function loadShardAsync<T extends z.ZodTypeAny>(
+  filename: string
+): Promise<z.infer<T>[]> {
+  // Dynamically import the appropriate loaders based on environment
+  const loaders = isBrowser ? await import('../loaders/browser') : await import('../loaders/node');
+
+  // Map filename to async loader function
+  const loaderMap = {
+    'basic_info.json': loaders.loadBasicInfoAsync,
+    'codes.json': loaders.loadCodesAsync,
+    'coordinates.json': loaders.loadCoordinatesAsync,
+    'region.json': loaders.loadRegionAsync,
+    'references.json': loaders.loadReferencesAsync,
+  } as const;
+
+  const loader = loaderMap[filename as keyof typeof loaderMap];
+  if (!loader) {
+    throw new Error(`No loader found for file: ${filename}`);
   }
-  return loadNodeShard(filename, schema);
-} 
+
+  return loader() as unknown as Promise<z.infer<T>[]>;
+}
