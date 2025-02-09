@@ -1,0 +1,82 @@
+{
+  "name": "ourairports-js",
+  "version": "1.0.0",
+  "description": "A TypeScript library for handling OurAirports data, supports browser and node.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "node": {
+        "import": "./dist/node/index.js",
+        "types": "./dist/node/index.d.ts"
+      },
+      "browser": {
+        "import": "./dist/browser/index.js",
+        "types": "./dist/browser/index.d.ts"
+      },
+      "default": {
+        "import": "./dist/node/index.js",
+        "types": "./dist/node/index.d.ts"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "data"
+  ],
+  "scripts": {
+    "build": "bun run fetch-data && tsup",
+    "test": "vitest run",
+    "test:node": "vitest run src/tests/node",
+    "test:browser": "vitest run src/tests/browser",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "fetch-data": "bun src/scripts/fetchData.ts",
+    "format": "prettier --write .",
+    "lint": "eslint . --ext .ts",
+    "prepare": "bun run build"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vitest/coverage-v8": "^1.2.2",
+    "eslint": "^8.56.0",
+    "happy-dom": "^15.11.7",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3",
+    "tsup": "^8.0.2",
+    "vitest": "^1.2.2"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.3",
+    "zod": "^3.22.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "airports",
+    "ourairports",
+    "iata",
+    "iata-codes",
+    "iata-lookup",
+    "icao",
+    "icao-codes",
+    "icao-lookup",
+    "aviation",
+    "typescript",
+    "bun",
+    "browser",
+    "node.js"
+  ],
+  "author": "alice39s",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alice39s/ourairports-js"
+  },
+  "trustedDependencies": [
+    "core-js",
+    "esbuild"
+  ]
+}

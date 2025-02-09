@@ -1,0 +1,68 @@
+name: Monthly Data Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - package.json
+      - .github/workflows/**
+  schedule:
+    - cron: '0 0 1 * *'  # Every month on the 1st day at 00:00 UTC
+  workflow_dispatch:  # Accept manual trigger
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+          
+      - name: Install dependencies
+        run: bun install
+        
+      - name: Fetch latest airports data
+        run: bun run fetch-data
+        
+      - name: Get package version
+        id: package_version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        
+      - name: Create backup archive
+        run: tar -czf backup.gz data/*.json
+        
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.package_version.outputs.version }}-${{ steps.date.outputs.date }}
+          name: Release v${{ steps.package_version.outputs.version }} (${{ steps.date.outputs.date }})
+          body: |
+            Monthly airports data update for version ${{ steps.package_version.outputs.version }}
+            
+            This release contains the latest airports data from OurAirports, split into the following files:
+            - basic_info.json: Basic airport information (name, type)
+            - codes.json: Airport codes (IATA, ICAO, local)
+            - coordinates.json: Geographic coordinates
+            - region.json: Regional information
+            - references.json: External references and service information
+            - backup.gz: Compressed backup of all JSON files
+          files: |
+            data/basic_info.json
+            data/codes.json
+            data/coordinates.json
+            data/region.json
+            data/references.json
+            backup.gz
+          draft: false
+          prerelease: false 
