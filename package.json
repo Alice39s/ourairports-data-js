@@ -1,5 +1,5 @@
 {
-  "name": "ourairports-js",
+  "name": "ourairports-data-js",
   "version": "1.0.0",
   "description": "A TypeScript library for handling OurAirports data, supports browser and node.js",
   "type": "module",
