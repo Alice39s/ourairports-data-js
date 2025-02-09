@@ -2,6 +2,14 @@
 
 A TypeScript library for working with [OurAirports Data](https://github.com/davidmegginson/ourairports-data) data. This library provides easy access to airport information, including IATA/ICAO codes, geographical coordinates, and more.
 
+> [!WARNING]  
+> 🔧 This library is not yet ready for production use. It is still under development.
+> 
+> This project uses only clean data containing IATA Code airports in order to reduce the size of the package.
+
+> [!IMPORTANT]  
+> This is not an official project of OurAirports.com!
+
 ## Features
 
 - 🌐 Universal package that works in both Node.js and browser environments

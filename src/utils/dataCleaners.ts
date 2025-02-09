@@ -26,8 +26,9 @@ export function cleanAirportName(name: string): string {
 /**
  * Validate airport data
  */
-export function isValidAirport(name: string): boolean {
-  if (!name || name.length < 3) return false
+export function isValidAirport(name: string, iataCode: string): boolean {
+  if (!name || name.length < 3) return false;
   if (containsSpam(name)) return false;
+  if (!iataCode || iataCode.length !== 3) return false; // Filter out invalid IATA codes
   return true;
 } 

@@ -73,7 +73,7 @@ function processData<T extends z.ZodTypeAny>(data: unknown[], schema: T): z.infe
       // If the data contains the name field, clean it
       if ('name' in parsed && typeof parsed.name === 'string') {
         const cleanedName = cleanAirportName(parsed.name);
-        if (!isValidAirport(cleanedName)) {
+        if (!isValidAirport(cleanedName, parsed.iata_code)) {
           errors.push(new Error(`Invalid airport name at index ${index}: ${parsed.name}`));
           return;
         }

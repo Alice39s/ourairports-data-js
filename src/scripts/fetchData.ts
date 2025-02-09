@@ -93,7 +93,7 @@ export async function fetchAirportsData(): Promise<void> {
     const processedRecords = records
       .map((record) => {
         const cleanedName = cleanAirportName(record.name);
-        if (!isValidAirport(cleanedName)) {
+        if (!isValidAirport(cleanedName, record.iata_code)) {
           return null;
         }
         return {
